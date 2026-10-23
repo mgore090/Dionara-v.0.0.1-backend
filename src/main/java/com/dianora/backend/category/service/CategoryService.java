@@ -130,4 +130,83 @@ public class CategoryService {
                 category.getProducts().size()
         );
     }
+
+    @Transactional(readOnly = true)
+    public List<CategoryResponse> getAll() {
+        return categoryRepository.findAll()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
+    public CategoryResponse getById(Long id) {
+        return toResponse(findCategory(id));
+    }
+
+    public CategoryResponse update(
+            Long id,
+            CategoryRequest request) {
+
+        Category category = findCategory(id);
+        String name = normalizeName(request.name());
+
+        if (categoryRepository.existsByNameIgnoreCaseAndIdNot(
+                name, id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Category name already exists"
+            );
+        }
+
+        category.setName(name);
+        category.setDescription(
+                normalizeDescription(request.description())
+        );
+
+        return toResponse(categoryRepository.save(category));
+    }
+
+    public void deactivate(Long id) {
+        Category category = findCategory(id);
+
+        if (productRepository.existsByCategory_Id(id)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot deactivate a category containing products"
+            );
+        }
+
+        category.setActive(false);
+        categoryRepository.save(category);
+    }
+
+    private Category findCategory(Long id) {
+        return categoryRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Category not found: " + id
+                ));
+    }
+
+    private CategoryResponse toResponse(Category category) {
+        return new CategoryResponse(
+                category.getId(),
+                category.getName(),
+                category.getDescription(),
+                category.isActive(),
+                category.getProducts().size()
+        );
+    }
+
+    private String normalizeName(String name) {
+        return name.trim();
+    }
+
+    private String normalizeDescription(String description) {
+        if (description == null || description.isBlank()) {
+            return null;
+        }
+        return description.trim();
+    }
 }

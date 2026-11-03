@@ -369,4 +369,11 @@ public class OrderService {
                 order.getUpdatedAt()
         );
     }
+    @Transactional(readOnly = true)
+    public List<OrderResponse> getAllOrders() {
+        return orderRepository.findAllByOrderByCreatedAtDesc()
+                .stream()
+                .map(this::toResponse)
+                .toList();
+    }
 }

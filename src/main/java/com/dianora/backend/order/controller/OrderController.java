@@ -34,24 +34,30 @@ public class OrderController {
     // Get one order by ID.
     @GetMapping("/{orderId}")
     public OrderResponse getOrder(
-            @PathVariable Long orderId) {
+            @PathVariable("orderId") Long orderId) {
         return orderService.getOrder(orderId);
     }
 
     // Get a user's order history.
     @GetMapping("/user/{userId}")
     public List<OrderResponse> getOrdersByUser(
-            @PathVariable Long userId) {
+            @PathVariable("userId") Long userId) {
         return orderService.getOrdersByUser(userId);
     }
 
     // Admin/authorized staff only.
     @PatchMapping("/{orderId}/status")
     public OrderResponse updateOrderStatus(
-            @PathVariable Long orderId,
+            @PathVariable("orderId") Long orderId,
             @Valid @RequestBody UpdateOrderStatusRequest request) {
         return orderService.updateOrderStatus(
-                orderId, request.status()
+                orderId,
+                request.status()
         );
+    }
+
+    @GetMapping
+    public List<OrderResponse> getAllOrders() {
+        return orderService.getAllOrders();
     }
 }

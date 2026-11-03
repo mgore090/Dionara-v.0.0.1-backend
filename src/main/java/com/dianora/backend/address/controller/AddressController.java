@@ -24,7 +24,7 @@ public class AddressController {
 
     @PostMapping
     public ResponseEntity<AddressResponse> addAddress(
-            @PathVariable Long userId,
+            @PathVariable("userId") Long userId,
             @Valid @RequestBody AddressRequest request) {
 
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -33,7 +33,7 @@ public class AddressController {
 
     @GetMapping
     public ResponseEntity<List<AddressResponse>> getAddresses(
-            @PathVariable Long userId) {
+            @PathVariable("userId") Long userId) {
 
         return ResponseEntity.ok(
                 addressService.getAddresses(userId)
@@ -42,8 +42,8 @@ public class AddressController {
 
     @GetMapping("/{addressId}")
     public ResponseEntity<AddressResponse> getAddress(
-            @PathVariable Long userId,
-            @PathVariable Long addressId) {
+            @PathVariable("userId") Long userId,
+            @PathVariable("addressId") Long addressId) {
 
         return ResponseEntity.ok(
                 addressService.getAddress(userId, addressId)
@@ -52,8 +52,8 @@ public class AddressController {
 
     @PutMapping("/{addressId}")
     public ResponseEntity<AddressResponse> updateAddress(
-            @PathVariable Long userId,
-            @PathVariable Long addressId,
+            @PathVariable("userId") Long userId,
+            @PathVariable("addressId") Long addressId,
             @Valid @RequestBody AddressRequest request) {
 
         return ResponseEntity.ok(
@@ -63,8 +63,8 @@ public class AddressController {
 
     @PatchMapping("/{addressId}/default")
     public ResponseEntity<AddressResponse> setDefaultAddress(
-            @PathVariable Long userId,
-            @PathVariable Long addressId) {
+            @PathVariable("userId") Long userId,
+            @PathVariable("addressId") Long addressId) {
 
         return ResponseEntity.ok(
                 addressService.setDefaultAddress(userId, addressId)
@@ -73,8 +73,8 @@ public class AddressController {
 
     @DeleteMapping("/{addressId}")
     public ResponseEntity<Void> deleteAddress(
-            @PathVariable Long userId,
-            @PathVariable Long addressId) {
+            @PathVariable("userId") Long userId,
+            @PathVariable("addressId") Long addressId) {
 
         addressService.deleteAddress(userId, addressId);
         return ResponseEntity.noContent().build();

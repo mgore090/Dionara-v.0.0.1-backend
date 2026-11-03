@@ -1,3 +1,4 @@
+
 package com.dianora.backend.user.service;
 
 import com.dianora.backend.user.dto.UserRequest;
@@ -22,77 +23,142 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
+    // CREATE USER
     public UserResponse createUser(UserRequest request) {
 
-        String email = request.email().trim().toLowerCase();
+        String fullName = request.fullName() == null
+                ? null
+                : request.fullName().trim();
 
-        if (userRepository.existsByEmailIgnoreCase(email)) {
+        String phone = request.phone() == null
+                ? null
+                : request.phone().trim();
+
+        String email = normalizeEmail(request.email());
+
+        if (fullName == null || fullName.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Full name is required"
+            );
+        }
+
+        if (phone == null || phone.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Phone number is required"
+            );
+        }
+
+        if (email != null &&
+                userRepository.existsByEmailIgnoreCase(email)) {
+
             throw new ResponseStatusException(
                     HttpStatus.CONFLICT,
                     "A user with this email already exists"
             );
         }
 
-        User user = new User(
-                request.fullName().trim(),
-                email,
-                request.phone() == null ? null : request.phone().trim()
-        );
+        User user = new User(fullName, email, phone);
 
         return mapToResponse(userRepository.save(user));
     }
 
+    // GET USER BY ID
     @Transactional(readOnly = true)
     public UserResponse getUserById(Long userId) {
+
         return mapToResponse(findUser(userId));
     }
 
+    // GET ALL USERS
     @Transactional(readOnly = true)
     public List<UserResponse> getAllUsers() {
+
         return userRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
+    // UPDATE USER PROFILE
     public UserResponse updateUser(Long userId, UserRequest request) {
 
         User user = findUser(userId);
-        String email = request.email().trim().toLowerCase();
 
-        userRepository.findByEmailIgnoreCase(email)
-                .filter(existing -> !existing.getId().equals(userId))
-                .ifPresent(existing -> {
-                    throw new ResponseStatusException(
-                            HttpStatus.CONFLICT,
-                            "Email is already used by another user"
-                    );
-                });
+        String fullName = request.fullName() == null
+                ? null
+                : request.fullName().trim();
 
-        user.setFullName(request.fullName().trim());
+        String email = normalizeEmail(request.email());
+
+        if (fullName == null || fullName.isBlank()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Full name is required"
+            );
+        }
+
+        // Check duplicate email only when email is provided
+        if (email != null) {
+
+            userRepository.findByEmailIgnoreCase(email)
+                    .filter(existingUser ->
+                            !existingUser.getId().equals(userId))
+                    .ifPresent(existingUser -> {
+                        throw new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Email is already used by another customer"
+                        );
+                    });
+        }
+
+        // Update profile fields
+        user.setFullName(fullName);
         user.setEmail(email);
-        user.setPhone(
-                request.phone() == null ? null : request.phone().trim()
-        );
+
+        // IMPORTANT:
+        // Do not update phone number.
+        // Phone is the OTP login identity.
 
         return mapToResponse(userRepository.save(user));
     }
 
+    // DEACTIVATE USER
     public void deactivateUser(Long userId) {
+
         User user = findUser(userId);
+
         user.setActive(false);
+
         userRepository.save(user);
     }
 
+    // FIND USER
     private User findUser(Long userId) {
+
         return userRepository.findById(userId)
-                .orElseThrow(() -> new ResponseStatusException(
-                        HttpStatus.NOT_FOUND,
-                        "User not found: " + userId
-                ));
+                .orElseThrow(() ->
+                        new ResponseStatusException(
+                                HttpStatus.NOT_FOUND,
+                                "User not found: " + userId
+                        )
+                );
     }
 
+    // NORMALIZE EMAIL
+    private String normalizeEmail(String email) {
+
+        if (email == null || email.isBlank()) {
+            return null;
+        }
+
+        return email.trim().toLowerCase();
+    }
+
+    // RESPONSE MAPPING
     private UserResponse mapToResponse(User user) {
+
         return new UserResponse(
                 user.getId(),
                 user.getFullName(),

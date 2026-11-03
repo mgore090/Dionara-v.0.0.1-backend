@@ -29,7 +29,7 @@ public class AddressService {
     }
 
     // Add address for a user.
-    public AddressResponse addAddress(
+    /*public AddressResponse addAddress(
             Long userId,
             AddressRequest request) {
 
@@ -42,6 +42,43 @@ public class AddressService {
                 || !addressRepository.existsByUser_Id(userId)) {
             setDefaultAddressForUser(userId, null);
             address.setDefaultAddress(true);
+        } else {
+            address.setDefaultAddress(false);
+        }
+
+        user.addAddress(address);
+
+        Address savedAddress = addressRepository.save(address);
+
+        return mapToResponse(savedAddress);
+    }*/
+
+    public AddressResponse addAddress(
+            Long userId,
+            AddressRequest request) {
+
+        User user = findActiveUser(userId);
+
+        Address address = new Address();
+        copyRequestToAddress(request, address);
+
+        // Update customer profile name only if it is not available.
+        // Never overwrite an existing account name with another
+        // address recipient's name.
+        if (user.getFullName() == null
+                || user.getFullName().isBlank()) {
+
+            user.setFullName(request.fullName().trim());
+            userRepository.save(user);
+        }
+
+        // First address becomes default automatically.
+        if (request.defaultAddress()
+                || !addressRepository.existsByUser_Id(userId)) {
+
+            setDefaultAddressForUser(userId, null);
+            address.setDefaultAddress(true);
+
         } else {
             address.setDefaultAddress(false);
         }

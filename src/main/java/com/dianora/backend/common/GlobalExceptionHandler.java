@@ -1,4 +1,4 @@
-﻿package com.dianora.backend.common;
+package com.dianora.backend.common;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,29 +22,25 @@ public class GlobalExceptionHandler {
 
         exception.getBindingResult()
                 .getFieldErrors()
-                .forEach(error ->
-                        errors.putIfAbsent(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
-                );
+                .forEach(error -> errors.putIfAbsent(
+                        error.getField(),
+                        error.getDefaultMessage()
+                ));
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now().toString());
-        body.put("status", 400);
+        body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Validation failed");
         body.put("details", errors);
 
-        return ResponseEntity.badRequest().body(body);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Map<String, Object>> handleStatusException(
             ResponseStatusException exception) {
 
-        HttpStatus status = HttpStatus.valueOf(
-                exception.getStatusCode().value()
-        );
+        HttpStatus status = HttpStatus.valueOf(exception.getStatusCode().value());
 
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("timestamp", Instant.now().toString());

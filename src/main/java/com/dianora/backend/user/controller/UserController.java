@@ -37,14 +37,14 @@ public class UserController {
 
     @GetMapping("/{userId}")
     public ResponseEntity<UserResponse> getUser(
-            @PathVariable("userId") Long userId) {
+            @PathVariable Long userId) {
 
         return ResponseEntity.ok(userService.getUserById(userId));
     }
 
     @PutMapping("/{userId}")
     public ResponseEntity<UserResponse> updateUser(
-            @PathVariable("userId") Long userId,
+            @PathVariable Long userId,
             @Valid @RequestBody UserRequest request) {
 
         return ResponseEntity.ok(
@@ -54,7 +54,7 @@ public class UserController {
 
     @DeleteMapping("/{userId}")
     public ResponseEntity<Void> deactivateUser(
-            @PathVariable("userId") Long userId) {
+            @PathVariable Long userId) {
 
         userService.deactivateUser(userId);
         return ResponseEntity.noContent().build();

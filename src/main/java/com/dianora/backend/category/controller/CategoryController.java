@@ -2,8 +2,8 @@ package com.dianora.backend.category.controller;
 
 import com.dianora.backend.category.dto.CategoryRequest;
 import com.dianora.backend.category.dto.CategoryResponse;
-import com.dianora.backend.category.service.CategoryService;
 
+import com.dianora.backend.category.service.CategoryService;
 import jakarta.validation.Valid;
 
 import org.springframework.http.HttpStatus;
@@ -26,8 +26,7 @@ public class CategoryController {
     public ResponseEntity<CategoryResponse> createCategory(
             @Valid @RequestBody CategoryRequest request) {
 
-        CategoryResponse response =
-                categoryService.createCategory(request);
+        CategoryResponse response = categoryService.createCategory(request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -40,25 +39,20 @@ public class CategoryController {
     }
 
     @GetMapping("/{id}")
-    public CategoryResponse getById(
-            @PathVariable("id") Long id) {
-
+    public CategoryResponse getById(@PathVariable Long id) {
         return categoryService.getById(id);
     }
 
     @PutMapping("/{id}")
     public CategoryResponse update(
-            @PathVariable("id") Long id,
+            @PathVariable Long id,
             @Valid @RequestBody CategoryRequest request) {
-
         return categoryService.update(id, request);
     }
 
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void deactivate(
-            @PathVariable("id") Long id) {
-
+    public void deactivate(@PathVariable Long id) {
         categoryService.deactivate(id);
     }
 }

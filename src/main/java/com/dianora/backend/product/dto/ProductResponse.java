@@ -1,7 +1,6 @@
 package com.dianora.backend.product.dto;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 public record ProductResponse(
         Long id,
@@ -12,10 +11,6 @@ public record ProductResponse(
         int stock,
         boolean active,
         Long categoryId,
-        String categoryName,
-        BigDecimal originalPrice,
-        List<String> images,
-        List<String> features,
-        String size
+        String categoryName
 ) {
 }

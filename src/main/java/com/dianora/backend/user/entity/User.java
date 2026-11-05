@@ -1,10 +1,7 @@
-
 package com.dianora.backend.user.entity;
 
 import com.dianora.backend.address.entity.Address;
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.Setter;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -23,16 +20,13 @@ public class User {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Filled from the first delivery address if profile name is blank.
-    @Column(nullable = true, length = 100)
+    @Column(nullable = false, length = 100)
     private String fullName;
 
-    // Optional. Customer does not need email for OTP login.
-    @Column(nullable = true, unique = true, length = 150)
+    @Column(nullable = false, unique = true, length = 150)
     private String email;
 
-    // Mobile number is the login identity.
-    @Column(nullable = false, unique = true, length = 20)
+    @Column(length = 20)
     private String phone;
 
     @Column(nullable = false)
@@ -72,6 +66,10 @@ public class User {
         address.setUser(null);
     }
 
+    public Long getId() {
+        return id;
+    }
+
     public String getFullName() {
         return fullName;
     }
@@ -80,28 +78,20 @@ public class User {
         this.fullName = fullName;
     }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
     public String getEmail() {
         return email;
     }
 
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     public String getPhone() {
         return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public boolean isActive() {
@@ -116,15 +106,7 @@ public class User {
         return createdAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
-
     public List<Address> getAddresses() {
         return addresses;
-    }
-
-    public void setAddresses(List<Address> addresses) {
-        this.addresses = addresses;
     }
 }
